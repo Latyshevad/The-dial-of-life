@@ -143,8 +143,8 @@ export default{
       </div>
 
       <!-- Аналоговые часы -->
-      <div class="analog-clock" :style="{ width: clockSize + 'px', height: clockSize + 'px' }">
-        <svg :width="clockSize" :height="clockSize" viewBox="0 0 200 200">
+      <div class="analog-clock">
+        <svg viewBox="0 0 200 200">
           <!-- Циферблат -->
           <circle cx="100" cy="100" r="95" fill="white" stroke="#333" stroke-width="2"/>
           
@@ -509,6 +509,18 @@ export default{
   .info-btn, .icon-btn {
     display: block;
     margin: 10px auto;
+  }
+}
+@media (max-width: 440px) {
+  .clock-app {
+    padding: 10px;
+  }
+  .clock-container {
+    padding: 10px;
+  }
+  .analog-clock {
+    width: 100%;
+    height: 100%;
   }
 }
 </style>
