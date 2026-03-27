@@ -280,7 +280,7 @@ export default{
   margin: 0 auto;
   background: white;
   border-radius: 50%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); */
 }
 
 .digital-time {
