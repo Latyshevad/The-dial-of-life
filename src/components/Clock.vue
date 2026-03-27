@@ -1,3 +1,136 @@
+<script>
+
+import ModalWindow from './ModalWindow.vue'
+
+export default{
+  name: 'AnalogClock',
+  data() {
+    return {
+      maxYearLife: 80,
+      currentTime: new Date(),
+      clockSize: 300,
+      hourHandLength: 50,
+      minuteHandLength: 70,
+      secondHandLength: 85,
+      isCustomTime: false,
+      selectedDateTime: '',
+      customHour: null,
+      customMinute: null,
+      customSecond: null,
+      customDate: '',
+      isModalVisible: false,
+      modalContent: `
+        <p>Если сжать всю человеческую жизнь (80 лет) в 24 часа, то где сейчас находитесь вы?</p>
+        <p>Эта мини-программа визуально покажет вам тот момент где вы сейчас находитесь. Автор надеется, что этот метод поможет кому-нибудь преодолеть свой кризис. 
+          Поможет осознать, что каждый возраст по своему прекрасен и нужно наслаждаться каждым моментом своей жизни. Нам всем предстоит многое успеть сделать
+          до полуночи. Я искрене надеюсь, что все мы станем "полуночниками" и встретим новый рассвет на этих часах!</p>
+        
+        <p style="margin-top: 20px;"><strong>Внимание:</strong> Программа была создана только с развлекательной целью, автор никого не пытается оскорбить или обидеть. Всем добра!</p>
+      `
+    }
+  },
+  components: {
+    ModalWindow,
+  },
+  computed: {
+    hours() {
+      return this.customHour ?? this.currentTime.getHours()
+    },
+    minutes() {
+      return this.customMinute ?? this.currentTime.getMinutes()
+    },
+    seconds() {
+      return this.customSecond ?? this.currentTime.getSeconds()
+    },
+    hourAngle() {
+      return (this.hours % 12) * 30 + this.minutes * 0.5
+    },
+    minuteAngle() {
+      return this.minutes * 6 + this.seconds * 0.1
+    },
+    secondAngle() {
+      return this.seconds * 6
+    },
+    formattedTime() {
+      return this.currentTime.toLocaleTimeString('ru-RU')
+    },
+    formattedDate() {
+      return this.currentTime.toLocaleDateString('ru-RU', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
+  },
+  watch: {
+    selectedDateTime(newValue) {
+      if (newValue) {
+        this.setCustomDateTime(newValue)
+      }
+    }
+  },
+  methods: {
+    openModal() {
+      this.isModalVisible = true
+    },
+    handleModalClose() {
+      this.isModalVisible = false
+    },
+    getAngle(degrees) {
+      return (degrees - 90) * Math.PI / 180
+    },
+    setCustomDateTime(datetime) {
+      if (datetime) {
+        this.currentTime = new Date(datetime)
+        this.isCustomTime = true
+        this.updateDateTimeInput()
+      }
+    },
+    
+    applyCustomDate() {
+      if (this.customDate) {
+        const newDate = new Date(this.customDate)
+        const currentTime = this.currentTime
+        newDate.setHours(currentTime.getHours(), currentTime.getMinutes(), currentTime.getSeconds())
+        this.currentTime = newDate
+        this.isCustomTime = true
+        this.updateDateTimeInput()
+      } else {
+        alert('Пожалуйста, выберите дату')
+      }
+    },
+    updateDateTimeInput() {
+      // Форматируем дату для input datetime-local
+      const year = this.currentTime.getFullYear()
+      const month = String(this.currentTime.getMonth() + 1).padStart(2, '0')
+      const day = String(this.currentTime.getDate()).padStart(2, '0')
+      const hours = String(this.currentTime.getHours()).padStart(2, '0')
+      const minutes = String(this.currentTime.getMinutes()).padStart(2, '0')
+      this.selectedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`
+      
+      // Обновляем поле даты
+      this.customDate = `${year}-${month}-${day}`
+      this.calculateLifeTime()
+    },
+    calculateLifeTime(year) { //Переделать
+      let fullYears = (-1970) + new Date(( new Date() - new Date(this.currentTime) )).getFullYear()
+      let lifeTime = (fullYears / this.maxYearLife) * 100
+      let lifeHour = (24 / 100) * lifeTime
+
+      let hour = Math.trunc(lifeHour)
+      let minute = (Number((lifeHour - Math.trunc(lifeHour).toFixed(1))) * 60).toFixed(0)
+
+      const newDate = new Date(this.currentTime)
+      newDate.setHours(hour, minute, '00')
+      this.currentTime = newDate
+      this.isCustomTime = true
+    }
+  }
+}
+</script>
+
+
 <template>
   <div class="clock-app">
     <div class="clock-container">
@@ -121,138 +254,6 @@
     @close="handleModalClose"
   />
 </template>
-
-<script>
-
-import ModalWindow from './ModalWindow.vue'
-
-export default {
-  name: 'AnalogClock',
-  data() {
-    return {
-      maxYearLife: 90,
-      currentTime: new Date(),
-      clockSize: 300,
-      hourHandLength: 50,
-      minuteHandLength: 70,
-      secondHandLength: 85,
-      isCustomTime: false,
-      selectedDateTime: '',
-      customHour: null,
-      customMinute: null,
-      customSecond: null,
-      customDate: '',
-      isModalVisible: false,
-      modalContent: `
-        <p>Если сжать всю человеческую жизнь (90 лет) в 24 часа, то где сейчас находитесь вы?</p>
-        <p>Эта мини-программа визуально покажет вам тот момент где вы сейчас находитесь. Автор надеется, что этот метод поможет кому-нибудь преодолеть свой кризис. 
-          Поможет осознать, что каждый возраст по своему прекрасен и нужно наслаждаться каждым моментом своей жизни. Нам всем предстоит многое успеть сделать
-          до полуночи. Я искрене надеюсь, что все мы станем "полуночниками" и встретим новый рассвет на этих часах!</p>
-        
-        <p style="margin-top: 20px;"><strong>Внимание:</strong> Программа была создана только с развлекательной целью, автор никого не пытается оскорбить или обидеть. Всем добра!</p>
-      `
-    }
-  },
-  components: {
-    ModalWindow,
-  },
-  computed: {
-    hours() {
-      return this.customHour ?? this.currentTime.getHours()
-    },
-    minutes() {
-      return this.customMinute ?? this.currentTime.getMinutes()
-    },
-    seconds() {
-      return this.customSecond ?? this.currentTime.getSeconds()
-    },
-    hourAngle() {
-      return (this.hours % 12) * 30 + this.minutes * 0.5
-    },
-    minuteAngle() {
-      return this.minutes * 6 + this.seconds * 0.1
-    },
-    secondAngle() {
-      return this.seconds * 6
-    },
-    formattedTime() {
-      return this.currentTime.toLocaleTimeString('ru-RU')
-    },
-    formattedDate() {
-      return this.currentTime.toLocaleDateString('ru-RU', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    }
-  },
-  watch: {
-    selectedDateTime(newValue) {
-      if (newValue) {
-        this.setCustomDateTime(newValue)
-      }
-    }
-  },
-  methods: {
-    openModal() {
-      this.isModalVisible = true
-    },
-    handleModalClose() {
-      this.isModalVisible = false
-    },
-    getAngle(degrees) {
-      return (degrees - 90) * Math.PI / 180
-    },
-    setCustomDateTime(datetime) {
-      if (datetime) {
-        this.currentTime = new Date(datetime)
-        this.isCustomTime = true
-        this.updateDateTimeInput()
-      }
-    },
-    
-    applyCustomDate() {
-      if (this.customDate) {
-        const newDate = new Date(this.customDate)
-        const currentTime = this.currentTime
-        newDate.setHours(currentTime.getHours(), currentTime.getMinutes(), currentTime.getSeconds())
-        this.currentTime = newDate
-        this.isCustomTime = true
-        this.updateDateTimeInput()
-      } else {
-        alert('Пожалуйста, выберите дату')
-      }
-    },
-    updateDateTimeInput() {
-      // Форматируем дату для input datetime-local
-      const year = this.currentTime.getFullYear()
-      const month = String(this.currentTime.getMonth() + 1).padStart(2, '0')
-      const day = String(this.currentTime.getDate()).padStart(2, '0')
-      const hours = String(this.currentTime.getHours()).padStart(2, '0')
-      const minutes = String(this.currentTime.getMinutes()).padStart(2, '0')
-      this.selectedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`
-      
-      // Обновляем поле даты
-      this.customDate = `${year}-${month}-${day}`
-      this.calculateLifeTime()
-    },
-    calculateLifeTime(year) { //Переделать
-      let fullYears = (-1970) + new Date(( new Date() - new Date(this.currentTime) )).getFullYear()
-      let lifeTime = (fullYears / this.maxYearLife) * 100
-      let lifeHour = (24 / 100) * lifeTime
-
-      let hour = Math.trunc(lifeHour)
-      let minute = (Number((lifeHour - Math.trunc(lifeHour).toFixed(1))) * 60).toFixed(0)
-
-      const newDate = new Date(this.currentTime)
-      newDate.setHours(hour, minute, '00')
-      this.currentTime = newDate
-      this.isCustomTime = true
-    }
-  }
-}
-</script>
 
 <style scoped>
 .clock-app {
